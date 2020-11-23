@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Projet_tut</string>
+
+    <string name="ine_arpege">INE ou numéro ARPEGE</string>
+    <string name="birth_date">Date de naissance (jjmmaaaa)</string>
+    <string name="ok">Ok</string>
+    <string name="register">Register</string>
+    <string name="sendID">signaler ma présence</string>
+</resources>

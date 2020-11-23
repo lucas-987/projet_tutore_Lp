@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sharedPrefs_fileName">com.example.projet_tut-sharedPrefs</string>
+
+    <string name="sharedPrefs_id_Key">id</string>
+    <integer name="sharedPrefs_id_defaultValue">-1</integer>
+
+    <string name="sharedPrefs_userType_key">userType</string>
+    <string name="sharedPrefs_userType_defaultValue">undefined</string>
+    <string name="sharedPrefs_userType_teacherValue">teacher</string>
+    <string name="sharedPrefs_userType_studentValue">student</string>
+</resources>

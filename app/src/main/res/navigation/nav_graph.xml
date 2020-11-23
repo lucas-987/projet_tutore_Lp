@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/switchHubFragment">
+
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.projet_tut.RegisterFragment"
+        android:label="fragment_register"
+        tools:layout="@layout/fragment_register" >
+        <action
+            android:id="@+id/action_registerFragment_to_teacherHomeFragment"
+            app:destination="@id/teacherHomeFragment" />
+        <action
+            android:id="@+id/action_registerFragment_to_studentHomeFragment"
+            app:destination="@id/studentHomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/switchHubFragment"
+        android:name="com.example.projet_tut.SwitchHubFragment"
+        android:label="fragment_switchhub"
+        tools:layout="@layout/fragment_switchhub" >
+        <action
+            android:id="@+id/action_switchHubFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_switchHubFragment_to_teacherHomeFragment"
+            app:destination="@id/teacherHomeFragment" />
+        <action
+            android:id="@+id/action_switchHubFragment_to_studentHomeFragment"
+            app:destination="@id/studentHomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/teacherHomeFragment"
+        android:name="com.example.projet_tut.TeacherHomeFragment"
+        android:label="fragment_teacher_home"
+        tools:layout="@layout/fragment_teacher_home" />
+    <fragment
+        android:id="@+id/studentHomeFragment"
+        android:name="com.example.projet_tut.StudentHomeFragment"
+        android:label="fragment_student_home"
+        tools:layout="@layout/fragment_student_home" />
+</navigation>
