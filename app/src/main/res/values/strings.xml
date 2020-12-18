@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">Projet_tut</string>
+    <string name="service_id">com.example.projet_tut</string>
+
+    <string name="nearby_student_registered_message">successfully registered</string>
+    <string name="student_registered_message">You have been registered.</string>
 
     <string name="ine_arpege">INE ou numéro ARPEGE</string>
     <string name="birth_date">Date de naissance (jjmmaaaa)</string>

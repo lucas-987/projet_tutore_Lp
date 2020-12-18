@@ -1,18 +1,24 @@
 package com.example.projet_tut;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 public class SwitchHubFragment extends Fragment {
+
+    private static final int ACCESS_FINE_LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private static String SHARED_PREFS_FILENAME;
     private static String SHARED_PREFS_ID_KEY;
@@ -23,7 +29,7 @@ public class SwitchHubFragment extends Fragment {
     private static String SHARED_PREFS_USER_TYPE_TEACHER_VALUE;
     private static String SHARED_PREFS_USER_TYPE_STUDENT_VALUE;
 
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,6 +58,17 @@ public class SwitchHubFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        //Ask for acces fine location permission
+        if(ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+        }
+        /*else if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+        }*/
+        else {
+            ActivityCompat.requestPermissions(getActivity(), new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_FINE_LOCATION_PERMISSION_REQUEST_CODE);
+        }
+
         handleUserType();
     }
 
@@ -79,4 +96,15 @@ public class SwitchHubFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == SwitchHubFragment.ACCESS_FINE_LOCATION_PERMISSION_REQUEST_CODE) {
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getActivity(), "Permission granted", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(getActivity(), "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }

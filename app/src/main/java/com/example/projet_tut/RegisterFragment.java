@@ -36,7 +36,8 @@ import java.util.regex.Pattern;
 
 public class RegisterFragment extends Fragment {
 
-    private static final Pattern INE_PATTERN = Pattern.compile("^\\d{9}[a-z\\d][a-z]$");
+    private static final Pattern INE_PATTERN = Pattern.compile("^\\d{9}[A-Z\\d][A-Z]$");
+    private static final Pattern ARPEGE_PATTERN = Pattern.compile("^\\d{9}[A-Z]{4}");
     private static final String API_ROOT_URL = "http://10.0.2.2/";
 
     private SharedPreferences sharedPreferences;
@@ -98,14 +99,14 @@ public class RegisterFragment extends Fragment {
 
             if(INE_PATTERN.matcher(ineArpege).matches() && birthDateOk) {
                 //vandaele = synonime de JSON (prononcer djèillezone avec o comme porte)
-                final String vandaeleBody = "{\"ineArpege\":\"" + ineArpege + "\",\"birthDate\":\"" + birthDate + "\"}";
+                //final String vandaeleBody = "{\"ineArpege\":\"" + ineArpege + "\",\"birthDate\":\"" + birthDate + "\"}";
 
-                final String url = API_ROOT_URL + "authentification.php";
+                final String url = API_ROOT_URL + "request/inscription/student/" + ineArpege + "/" + birthDate;
 
 
                 RequestQueue requestQueue = Volley.newRequestQueue(getContext());
 
-                PostRequest request = new PostRequest(Request.Method.POST, url,  new Response.Listener<String>() {
+                StringRequest request = new StringRequest(Request.Method.GET, url,  new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         Toast.makeText(getContext(), response, Toast.LENGTH_LONG).show();
@@ -114,25 +115,13 @@ public class RegisterFragment extends Fragment {
 
                             //no need to check the json because a JSONexception will be thrown if something wrong
                             int id = vandaeleResponse.getInt("id");
-                            String userType = vandaeleResponse.getString("userType");
 
                             if(id < 0) {throw new JSONException("Wrong id.");}
 
-                            if(userType.equals(SHARED_PREFS_USER_TYPE_STUDENT_VALUE)) {
-                                sharedPreferences.edit().putInt(SHARED_PREFS_ID_KEY, id)
-                                        .putString(SHARED_PREFS_USER_TYPE_KEY, SHARED_PREFS_USER_TYPE_STUDENT_VALUE)
-                                        .apply();
-                                Navigation.findNavController(getView()).navigate(R.id.action_registerFragment_to_studentHomeFragment);
-                            }
-                            else if(userType.equals(SHARED_PREFS_USER_TYPE_TEACHER_VALUE)) {
-                                sharedPreferences.edit().putInt(SHARED_PREFS_ID_KEY, id)
-                                        .putString(SHARED_PREFS_USER_TYPE_KEY, SHARED_PREFS_USER_TYPE_TEACHER_VALUE)
-                                        .apply();
-                                Navigation.findNavController(getView()).navigate(R.id.action_registerFragment_to_teacherHomeFragment);
-                            }
-                            else {
-                                throw new JSONException("Wrong user type.");
-                            }
+                            sharedPreferences.edit().putInt(SHARED_PREFS_ID_KEY, id)
+                                    .putString(SHARED_PREFS_USER_TYPE_KEY, SHARED_PREFS_USER_TYPE_STUDENT_VALUE)
+                                    .apply();
+                            Navigation.findNavController(getView()).navigate(R.id.action_registerFragment_to_studentHomeFragment);
 
                         }catch (JSONException e) {
                             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
@@ -144,7 +133,44 @@ public class RegisterFragment extends Fragment {
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                     }
-                }, vandaeleBody);
+                });
+
+                requestQueue.add(request);
+            }
+            else if(ARPEGE_PATTERN.matcher(ineArpege).matches() && birthDateOk){
+                final String url = API_ROOT_URL + "request/inscription/teacher/" + ineArpege + "/" + birthDate;
+
+
+                RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+
+                StringRequest request = new StringRequest(Request.Method.GET, url,  new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Toast.makeText(getContext(), response, Toast.LENGTH_LONG).show();
+                        try {
+                            JSONObject vandaeleResponse = new JSONObject(response);
+
+                            //no need to check the json because a JSONexception will be thrown if something wrong
+                            int id = vandaeleResponse.getInt("id");
+
+                            if(id < 0) {throw new JSONException("Wrong id.");}
+
+                            sharedPreferences.edit().putInt(SHARED_PREFS_ID_KEY, id)
+                                    .putString(SHARED_PREFS_USER_TYPE_KEY, SHARED_PREFS_USER_TYPE_TEACHER_VALUE)
+                                    .apply();
+                            Navigation.findNavController(getView()).navigate(R.id.action_registerFragment_to_teacherHomeFragment);
+
+                        }catch (JSONException e) {
+                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
 
                 requestQueue.add(request);
             }
