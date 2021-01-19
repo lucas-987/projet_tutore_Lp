@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- on real devices local -->
+    <!-- <string name="API_host">http://localhost:8080/</string> -->
+
+    <!-- on real devices -->
+    <string name="API_host">http://193.70.115.114/</string>
+
+    <!-- on emulator -->
+    <!-- <string name="API_host">http://10.0.2.2:8080/</string> -->
+</resources>

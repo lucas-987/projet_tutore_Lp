@@ -38,7 +38,8 @@ public class RegisterFragment extends Fragment {
 
     private static final Pattern INE_PATTERN = Pattern.compile("^\\d{9}[A-Z\\d][A-Z]$");
     private static final Pattern ARPEGE_PATTERN = Pattern.compile("^\\d{9}[A-Z]{4}");
-    private static final String API_ROOT_URL = "http://10.0.2.2/";
+    //private static final String API_ROOT_URL = "http://10.0.2.2:8080/";
+    private static String API_ROOT_URL;
 
     private SharedPreferences sharedPreferences;
 
@@ -86,7 +87,7 @@ public class RegisterFragment extends Fragment {
 
             boolean birthDateOk = true;
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             dateFormat.setLenient(false);
             try {
                 dateFormat.parse(birthDate);
@@ -118,7 +119,8 @@ public class RegisterFragment extends Fragment {
 
                             if(id < 0) {throw new JSONException("Wrong id.");}
 
-                            sharedPreferences.edit().putInt(SHARED_PREFS_ID_KEY, id)
+                            sharedPreferences.edit()
+                                    .putInt(SHARED_PREFS_ID_KEY, id)
                                     .putString(SHARED_PREFS_USER_TYPE_KEY, SHARED_PREFS_USER_TYPE_STUDENT_VALUE)
                                     .apply();
                             Navigation.findNavController(getView()).navigate(R.id.action_registerFragment_to_studentHomeFragment);
@@ -155,7 +157,8 @@ public class RegisterFragment extends Fragment {
 
                             if(id < 0) {throw new JSONException("Wrong id.");}
 
-                            sharedPreferences.edit().putInt(SHARED_PREFS_ID_KEY, id)
+                            sharedPreferences.edit()
+                                    .putInt(SHARED_PREFS_ID_KEY, id)
                                     .putString(SHARED_PREFS_USER_TYPE_KEY, SHARED_PREFS_USER_TYPE_TEACHER_VALUE)
                                     .apply();
                             Navigation.findNavController(getView()).navigate(R.id.action_registerFragment_to_teacherHomeFragment);
@@ -188,8 +191,9 @@ public class RegisterFragment extends Fragment {
         SHARED_PREFS_USER_TYPE_STUDENT_VALUE = getString(R.string.sharedPrefs_userType_studentValue);
         SHARED_PREFS_USER_TYPE_TEACHER_VALUE = getString(R.string.sharedPrefs_userType_teacherValue);
 
-
         sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_FILENAME, Context.MODE_PRIVATE);
+
+        API_ROOT_URL = getString(R.string.API_host);
     }
 
     @Nullable

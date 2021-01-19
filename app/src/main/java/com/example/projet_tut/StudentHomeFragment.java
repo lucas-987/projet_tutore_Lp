@@ -85,6 +85,8 @@ public class StudentHomeFragment extends Fragment {
             Toast.makeText(getContext(), "Advertiser " + s + "found", Toast.LENGTH_SHORT).show();
             Nearby.getConnectionsClient(getContext())
                     .requestConnection("student", s, discovererConnectionLifecycleCallback);
+                    // TODO idée : pour optimiser, on pourrait mettre l'id de l'étudiant ici (s: "id") et l'advertiser accepte seulement
+                    //  si l'id est dans la liste des absents/ des élèves
             //Nearby.getConnectionsClient(getContext()).stopDiscovery();
         }
 

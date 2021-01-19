@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.41000003"
+        app:layout_constraintVertical_bias="0.38"
         tools:layout_editor_absoluteX="0dp" />
 
     <Spinner
@@ -22,5 +22,16 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/teacherHome_discipline_spinner"
-        app:layout_constraintVertical_bias="0.19999999" />
+        app:layout_constraintVertical_bias="0.120000005" />
+
+    <Button
+        android:id="@+id/teacherHome_validate_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/start_call"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/teacherHome_group_spinner"
+        app:layout_constraintVertical_bias="0.16000003" />
 </androidx.constraintlayout.widget.ConstraintLayout>
