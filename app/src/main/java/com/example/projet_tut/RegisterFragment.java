@@ -178,6 +178,12 @@ public class RegisterFragment extends Fragment {
                 requestQueue.add(request);
             }
 
+            //Only to test student while no connection on old device TODO remove from final version
+            /*sharedPreferences.edit()
+                    .putInt(SHARED_PREFS_ID_KEY, 1)
+                    .putString(SHARED_PREFS_USER_TYPE_KEY, SHARED_PREFS_USER_TYPE_STUDENT_VALUE)
+                    .apply();
+            Navigation.findNavController(getView()).navigate(R.id.action_registerFragment_to_studentHomeFragment);*/
         }
     };
 
@@ -210,4 +216,6 @@ public class RegisterFragment extends Fragment {
 
         return v;
     }
+
+    //TODO remove all toast from project
 }

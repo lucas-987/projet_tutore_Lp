@@ -3,21 +3,21 @@ package com.example.projet_tut;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.projet_tut.Model.Course;
+import com.example.projet_tut.UtilitariesClass.PresenceResultDialog;
 import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
 import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
 import com.google.android.gms.nearby.connection.ConnectionResolution;
@@ -30,29 +30,32 @@ import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class StudentHomeFragment extends Fragment {
+public class StudentCoursesFragment extends Fragment {
 
-    /*private static String SHARED_PREFS_FILENAME;
+    private static String SHARED_PREFS_FILENAME;
     private static String SHARED_PREFS_ID_KEY;
     private static int SHARED_PREFS_ID_DEFAULT_VALUE;
 
-    private int id;*/
+    private int id;
 
-    private Button sendIdButton;
-    //private TextView messageTextView;
+    private List<Course> courses = new ArrayList<>();
 
+    private RecyclerView recyclerView;
+    private CoursesAdapter coursesAdapter;
 
-    private View.OnClickListener sendIdButtonClicked = new View.OnClickListener() {
+    private Button stopDiscoveryButton;
+
+    private CoursesAdapter.CoursesAdapterListener coursesAdapterListener  = new CoursesAdapter.CoursesAdapterListener() {
         @Override
-        public void onClick(View v) {
-
-            Navigation.findNavController(getView()).navigate(R.id.action_studentHomeFragment_to_studentCoursesFragment);
-            /*DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder().setStrategy(Strategy.P2P_STAR).build();
-
-            Nearby.getConnectionsClient(getContext()).startDiscovery(
-                    getString(R.string.service_id), endpointDiscoveryCallback, discoveryOptions);*/
+        public void onButtonClicked(View v, String id) {
+            Nearby.getConnectionsClient(getContext())
+                    .requestConnection("student", id, discovererConnectionLifecycleCallback);
+            // TODO idée : pour optimiser, on pourrait mettre l'id de l'étudiant ici (s: "id") et l'advertiser accepte seulement
+            //  si l'id est dans la liste des absents/ des élèves
         }
     };
 
@@ -60,56 +63,72 @@ public class StudentHomeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /*SHARED_PREFS_FILENAME = getString(R.string.sharedPrefs_fileName);
+        SHARED_PREFS_FILENAME = getString(R.string.sharedPrefs_fileName);
 
         SHARED_PREFS_ID_KEY = getString(R.string.sharedPrefs_id_Key);
         SHARED_PREFS_ID_DEFAULT_VALUE = getResources().getInteger(R.integer.sharedPrefs_id_defaultValue);
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFS_FILENAME, Context.MODE_PRIVATE);
 
-        id = sharedPreferences.getInt(SHARED_PREFS_ID_KEY, SHARED_PREFS_ID_DEFAULT_VALUE);*/
+        id = sharedPreferences.getInt(SHARED_PREFS_ID_KEY, SHARED_PREFS_ID_DEFAULT_VALUE);
+
+        coursesAdapter = new CoursesAdapter(coursesAdapterListener);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_student_home, container, false);
+        View v = inflater.inflate(R.layout.fragment_student_courses, container, false);
 
-        v.setFocusableInTouchMode(true);
-        v.requestFocus();
-        v.setOnKeyListener(new View.OnKeyListener() {
+        recyclerView = v.findViewById(R.id.studentCourses_recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(coursesAdapter);
+
+        stopDiscoveryButton = v.findViewById(R.id.studentCourses_stopDiscovery_Button);
+        stopDiscoveryButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-                    getActivity().finishAffinity();
-                    return true;
-                }
-                return false;
+            public void onClick(View v) {
+                Nearby.getConnectionsClient(getContext()).stopDiscovery();
             }
         });
-
-        sendIdButton = v.findViewById(R.id.studentHome_sendId_button);
-        sendIdButton.setOnClickListener(sendIdButtonClicked);
-
-        //messageTextView = v.findViewById(R.id.studentHome_message_textView);
 
         return v;
     }
 
-    /*private EndpointDiscoveryCallback endpointDiscoveryCallback = new EndpointDiscoveryCallback() {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder().setStrategy(Strategy.P2P_STAR).build();
+
+        Nearby.getConnectionsClient(getContext()).startDiscovery(
+                getString(R.string.service_id), endpointDiscoveryCallback, discoveryOptions);
+    }
+
+    private EndpointDiscoveryCallback endpointDiscoveryCallback = new EndpointDiscoveryCallback() {
         @Override
         public void onEndpointFound(@NonNull String s, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
             Toast.makeText(getContext(), "Advertiser " + s + "found", Toast.LENGTH_SHORT).show();
-            Nearby.getConnectionsClient(getContext())
-                    .requestConnection("student", s, discovererConnectionLifecycleCallback);
-                    // TODO idée : pour optimiser, on pourrait mettre l'id de l'étudiant ici (s: "id") et l'advertiser accepte seulement
-                    //  si l'id est dans la liste des absents/ des élèves
-            //Nearby.getConnectionsClient(getContext()).stopDiscovery();
+
+            // TODO regex to test if enpointName is valid (contains 1 and only 1 ! which is not in begining nor end)
+            String endPointName = discoveredEndpointInfo.getEndpointName();
+            String[] endpointDisciplineAndGroupe = endPointName.split("!");
+
+            Course course = new Course(endpointDisciplineAndGroupe[0], endpointDisciplineAndGroupe[1], s);
+            courses.add(course);
+            coursesAdapter.setCourses(courses);
         }
 
         @Override
         public void onEndpointLost(@NonNull String s) {
-
+            //TODO on endpoint lost never called
+            for(Course course : courses) {
+                if(course.getId().equals(s)) {
+                    courses.remove(course);
+                    coursesAdapter.setCourses(courses);
+                    return;
+                }
+            }
         }
     };
 
@@ -159,13 +178,19 @@ public class StudentHomeFragment extends Fragment {
     private PayloadCallback discovererPayloadCallback = new PayloadCallback() {
         @Override
         public void onPayloadReceived(@NonNull String s, @NonNull Payload payload) {
-            //Toast.makeText(getApplicationContext(), new String(payload.asBytes()), Toast.LENGTH_LONG).show();
-            //resultTextView.setText(new String(payload.asBytes()));
             String successCode = getString(R.string.nearby_student_registered_message);
             String message = new String(payload.asBytes());
+            // TODO test modals
+            // TODO indicate the course corresponding to the result
             if(successCode.equals(message)) {
                 Nearby.getConnectionsClient(getContext()).stopDiscovery();
-                messageTextView.setVisibility(View.VISIBLE);
+
+                new PresenceResultDialog(getString(R.string.student_registered_message))
+                                        .show(getParentFragmentManager(), "success");
+            }
+            else {
+                new PresenceResultDialog(getString(R.string.nearby_student_registration_failure))
+                        .show(getParentFragmentManager(), "failure");
             }
         }
 
@@ -192,6 +217,5 @@ public class StudentHomeFragment extends Fragment {
                     Toast.makeText(getContext(), "payload update shit", Toast.LENGTH_LONG).show();
             }
         }
-    };*/
-
+    };
 }

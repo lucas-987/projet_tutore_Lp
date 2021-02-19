@@ -49,7 +49,6 @@ import java.util.concurrent.TimeUnit;
 
 public class TeacherCallFragment extends Fragment {
 
-    //private static final String API_HOST = "http://10.0.2.2:8080/";
     private static String API_HOST;
 
     private SessionViewModel sessionViewModel;
@@ -123,11 +122,19 @@ public class TeacherCallFragment extends Fragment {
             String message = new String(payload.asBytes());
             try {
                 int id = Integer.parseInt(message);
-                checkId(id);
+                Payload responsePayload;
+                if(checkId(id)) {
+                    responsePayload = Payload.fromBytes(getString(R.string.nearby_student_registered_message).getBytes());
+                }
+                else {
+                    responsePayload = Payload.fromBytes(getString(R.string.nearby_student_registration_failure).getBytes());
+                }
+
+                Nearby.getConnectionsClient(getContext()).sendPayload(s, responsePayload);
 
             } catch (NumberFormatException e) {
                 // we don't treat it, it's invalid nothing happens
-                // we will not send information either for the moment maybe later ? TODO <--
+                // we will not send information for the moment maybe later ? TODO <--
             }
 
             Nearby.getConnectionsClient(getContext()).disconnectFromEndpoint(s);
@@ -242,49 +249,105 @@ public class TeacherCallFragment extends Fragment {
     }
 
     private void loadStudents() {
-        String url = API_HOST + "request/group/" + sessionViewModel.getGroup().getId();
 
-        JsonObjectRequest getStudentsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    JSONArray studentsVandaele = response.getJSONArray("students");
+        if(getArguments().getBoolean("updateLastCall")) {
+            String url = API_HOST + "request/call/" + sharedPreferences.getInt(SHARED_PREFS_ID_KEY, SHARED_PREFS_ID_DEFAULT_VALUE);
 
-                    ArrayList<Student> students = new ArrayList<>();
+            JsonObjectRequest getLastCallRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    try {
+                        int callId = response.getInt("idSeance");
 
-                    for(int i=0; i<studentsVandaele.length(); i++) {
-                        JSONObject studentVandaele = (JSONObject)studentsVandaele.get(i);
+                        //TODO set groups and discipline in the sessionViewModel
 
-                        int id = studentVandaele.getInt("id");
-                        String lastname = studentVandaele.getString("nomEtudiant");
-                        String firstname = studentVandaele.getString("prenomEtudiant");
+                        JSONArray studentsVandaele = response.getJSONArray("students");
 
-                        students.add(new Student(id, firstname, lastname));
+                        ArrayList<Student> presentStudents = new ArrayList<>();
+                        ArrayList<Student> missingStudents = new ArrayList<>();
+
+                        for(int i=0; i<studentsVandaele.length(); i++) {
+                            JSONObject studentVandaele = (JSONObject)studentsVandaele.get(i);
+
+                            int id = studentVandaele.getInt("id");
+                            String lastname = studentVandaele.getString("nomEtudiant");
+                            String firstname = studentVandaele.getString("prenomEtudiant");
+                            Boolean present = studentVandaele.getBoolean("presence");
+
+                            if(present) {
+                                presentStudents.add(new Student(id, firstname, lastname));
+                            }
+                            else {
+                                missingStudents.add(new Student(id, firstname, lastname));
+                            }
+                        }
+
+                        sessionViewModel.setCallId(callId);
+                        sessionViewModel.setMissingStudents(missingStudents);
+                        sessionViewModel.setPresentStudents(presentStudents);
+                        startAdvertising();
+
+                    } catch (JSONException e) {
+                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                     }
-
-                    sessionViewModel.setMissingStudents(students);
-                    sessionViewModel.setPresentStudents(new ArrayList<Student>());
-                    startAdvertising();
-
-                } catch (JSONException e) {
-                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
 
-        requestQueue.add(getStudentsRequest);
+                }
+            });
+
+            requestQueue.add(getLastCallRequest);
+        }
+        else {
+            String url = API_HOST + "request/group/" + sessionViewModel.getGroup().getId();
+
+            JsonObjectRequest getStudentsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    try {
+                        JSONArray studentsVandaele = response.getJSONArray("students");
+
+                        ArrayList<Student> students = new ArrayList<>();
+
+                        for(int i=0; i<studentsVandaele.length(); i++) {
+                            JSONObject studentVandaele = (JSONObject)studentsVandaele.get(i);
+
+                            int id = studentVandaele.getInt("id");
+                            String lastname = studentVandaele.getString("nomEtudiant");
+                            String firstname = studentVandaele.getString("prenomEtudiant");
+
+                            students.add(new Student(id, firstname, lastname));
+                        }
+
+                        sessionViewModel.setCallId(-1);
+                        sessionViewModel.setMissingStudents(students);
+                        sessionViewModel.setPresentStudents(new ArrayList<Student>());
+                        startAdvertising();
+
+                    } catch (JSONException e) {
+                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+
+            requestQueue.add(getStudentsRequest);
+        }
     }
 
     private void startAdvertising() {
         AdvertisingOptions advertisingOptions = new AdvertisingOptions.Builder().setStrategy(Strategy.P2P_STAR).build();
 
-        Nearby.getConnectionsClient(getContext()).startAdvertising("Nom du prof/ intitulé de la matière", getString(R.string.service_id), connectionLifecycleCallback, advertisingOptions);
-        // TODO look up ("nom du prof bla bla bla") définir ça proprement
+        //TODO look if it is ok and if it is possible to do it in a cleaner way
+        String courseInfos = sessionViewModel.getDiscipline().toString() + "!" +sessionViewModel.getGroup().toString();
+
+        Nearby.getConnectionsClient(getContext()).startAdvertising(courseInfos, getString(R.string.service_id), connectionLifecycleCallback, advertisingOptions);
     }
 
     // TODO find a better name for this function
@@ -315,8 +378,9 @@ public class TeacherCallFragment extends Fragment {
         JSONObject body;
         try {
             body = new JSONObject();
+            body.put("idSeance", sessionViewModel.getCallId());
             body.put("disciplineId", sessionViewModel.getDiscipline().getId());
-            body.put("groupsId", new JSONArray().put(sessionViewModel.getGroup().getId())); // TODO handle this shit of several groups
+            body.put("groupsId", new JSONArray().put(sessionViewModel.getGroup().getId())); // TODO handle this shit of several groups hint use an array of group in the session view model
             body.put("teacherId", sharedPreferences.getInt(SHARED_PREFS_ID_KEY, SHARED_PREFS_ID_DEFAULT_VALUE)); // TODO test id valid
 
             JSONArray attendancesArray = new JSONArray();
@@ -339,6 +403,7 @@ public class TeacherCallFragment extends Fragment {
 
         }catch (JSONException e) {
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            //TODO erreur 500 ici
             return;
         }
 
@@ -349,7 +414,6 @@ public class TeacherCallFragment extends Fragment {
                 try {
                     if(response.has("ok")) {
                         if(response.getBoolean("ok")) {
-                            // great success high five
                             Toast.makeText(getContext(), "Success !!", Toast.LENGTH_LONG).show();
                         }
                         else {

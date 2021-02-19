@@ -16,6 +16,7 @@ public class SessionViewModel extends AndroidViewModel {
 
     private Group group;
     private Discipline discipline;
+    private int callId;
 
     private MutableLiveData<ArrayList<Student>> missingStudents;
     private MutableLiveData<ArrayList<Student>> presentStudents;
@@ -38,6 +39,14 @@ public class SessionViewModel extends AndroidViewModel {
 
     public void setDiscipline(Discipline discipline) {
         this.discipline = discipline;
+    }
+
+    public int getCallId() {
+        return callId;
+    }
+
+    public void setCallId(int callId) {
+        this.callId = callId;
     }
 
     public MutableLiveData<ArrayList<Student>> getMissingStudents() {

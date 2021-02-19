@@ -2,19 +2,24 @@
     <string name="app_name">Projet_tut</string>
     <string name="service_id">com.example.projet_tut</string>
 
-    <string name="nearby_student_registered_message">successfully registered</string>
-    <string name="student_registered_message">You have been registered.</string>
+    <string name="nearby_student_registered_message">Présence confirmée</string>
+    <string name="nearby_student_registration_failure">Votre présence n\'a pas pu être confirmée.</string>
+    <string name="student_registered_message">Votre présence a été confirmée.</string>
 
     <string name="ine_arpege">INE ou numéro ARPEGE</string>
     <string name="birth_date">Date de naissance (jjmmaaaa)</string>
     <string name="ok">Ok</string>
-    <string name="register">Register</string>
+    <string name="register">S\'authentifier</string>
     <string name="sendID">signaler ma présence</string>
 
     <string name="start_call">Lancer l\'appel</string>
 
-    <string name="present">Present</string>
-    <string name="missing">Missing</string>
+    <string name="present">Présent</string>
+    <string name="missing">Absent</string>
 
-    <string name="terminate_call">Terminate the call</string>
+    <string name="terminate_call">Terminer l\'appel</string>
+
+    <string name="studentCourses_title">Cours disponibles :</string>
+    <string name="teacherHome_newCall">Nouvel appel</string>
+    <string name="teacherHome_updateLastCall">Mettre à jour le dernier appel</string>
 </resources>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StudentCoursesFragment">
+
+    <TextView
+        android:id="@+id/studentCourses_title_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/studentCourses_title"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/studentCourses_recyclerView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="20sp"/>
+    
+    <Button
+        android:id="@+id/studentCourses_stopDiscovery_Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="stop discovery"
+        app:layout_constraintTop_toBottomOf="@id/studentCourses_title_textView"
+        app:layout_constraintBottom_toTopOf="@id/studentCourses_recyclerView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_marginTop="16sp"
+        android:id="@+id/studentCourses_recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/studentCourses_stopDiscovery_Button"
+        tools:listitem="@layout/course_recycler_item"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
