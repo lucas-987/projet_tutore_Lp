@@ -26,6 +26,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.projet_tut.Model.Discipline;
+import com.example.projet_tut.Model.Group;
 import com.example.projet_tut.Model.Student;
 import com.example.projet_tut.ViewModel.SessionViewModel;
 import com.google.android.gms.nearby.Nearby;
@@ -282,6 +284,14 @@ public class TeacherCallFragment extends Fragment {
                             }
                         }
 
+                        JSONArray groupsArray = response.getJSONArray("groups");
+                        JSONObject groupJson = (JSONObject) groupsArray.get(0);
+
+                        Group group = new Group(groupJson.getString("label"), groupJson.getInt("id"));
+                        Discipline discipline = new Discipline(response.getString("labelMatiere"), response.getInt("idMatiere"));
+
+                        sessionViewModel.setGroup(group);
+                        sessionViewModel.setDiscipline(discipline);
                         sessionViewModel.setCallId(callId);
                         sessionViewModel.setMissingStudents(missingStudents);
                         sessionViewModel.setPresentStudents(presentStudents);
